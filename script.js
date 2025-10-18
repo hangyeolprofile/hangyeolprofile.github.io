@@ -123,28 +123,40 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ===== 스크롤 애니메이션 =====
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+// 모바일에서는 애니메이션 비활성화
+const isMobile = window.innerWidth <= 768;
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
+if (!isMobile) {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // 애니메이션 대상 요소 설정
+    const animateElements = document.querySelectorAll('.section');
+    animateElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        observer.observe(el);
     });
-}, observerOptions);
-
-// 애니메이션 대상 요소 설정
-const animateElements = document.querySelectorAll('.section');
-animateElements.forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    observer.observe(el);
-});
+} else {
+    // 모바일에서는 모든 섹션을 즉시 표시
+    const animateElements = document.querySelectorAll('.section');
+    animateElements.forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+    });
+}
 
 // ===== 헤더 스크롤 효과 =====
 let lastScroll = 0;
@@ -205,8 +217,8 @@ if (statsSection) {
     statsObserver.observe(statsSection);
 }
 
-// ===== 이미지 레이지 로딩 에러 처리 =====
-document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+// ===== 이미지 로드 에러 처리 =====
+document.querySelectorAll('img').forEach(img => {
     img.addEventListener('error', function() {
         console.log('이미지 로드 실패:', this.src);
         this.style.display = 'none';
